@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loosers Study — Content Calendar v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --bg2: #141414;
+    --bg3: #1a1a1a;
+    --card: #1e1e1e;
+    --border: #2a2a2a;
+    --accent: #f5a623;
+    --red: #e84040;
+    --green: #3ecf8e;
+    --blue: #4f9eff;
+    --purple: #b57bee;
+    --text: #f0f0f0;
+    --muted: #777;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 32px 24px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: 'LOOSERS';
+    position: absolute;
+    right: -20px; top: -10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px;
+    color: rgba(245,166,35,0.04);
+    pointer-events: none; user-select: none;
+  }
+  .header-top { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .badge {
+    background: var(--accent); color: #000;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    padding: 4px 10px; border-radius: 2px; letter-spacing: 1.5px;
+  }
+  .badge.v2 { background: #3ecf8e; }
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px; letter-spacing: 2px; color: var(--text); line-height: 1;
+  }
+  .header h1 span { color: var(--accent); }
+  .header-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-top: 6px;
+  }
+
+  /* SECTION */
+  .section { padding: 24px 20px 8px; }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--accent); text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ANALYSIS */
+  .analysis-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 0 20px 20px;
+  }
+  .analysis-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+  }
+  .analysis-card.full { grid-column: 1 / -1; }
+  .analysis-card .a-title {
+    font-size: 10px; font-family: 'Space Mono', monospace;
+    color: var(--muted); letter-spacing: 1px; margin-bottom: 8px;
+  }
+  .analysis-card .a-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); }
+  .analysis-card .a-desc { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+  .insight-list { list-style: none; padding: 0; }
+  .insight-list li {
+    font-size: 12px; color: var(--text); padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px; line-height: 1.5;
+  }
+  .insight-list li:last-child { border-bottom: none; }
+  .insight-list li .icon { font-size: 14px; flex-shrink: 0; }
+
+  /* PILLARS */
+  .pillars-wrap { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .pillar-row {
+    background: var(--card); border: 1px solid var(--border);
+    border-left: 3px solid; border-radius: 8px;
+    padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  }
+  .pillar-icon { font-size: 20px; flex-shrink: 0; }
+  .pillar-name { font-weight: 900; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+  .pillar-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .pillar-freq {
+    margin-left: auto; font-family: 'Space Mono', monospace;
+    font-size: 9px; color: var(--muted); text-align: right; flex-shrink: 0;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex; gap: 6px; padding: 0 20px;
+    margin-bottom: 16px; overflow-x: auto; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    padding: 8px 16px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--muted); cursor: pointer; white-space: nowrap;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+  /* CALENDAR */
+  .calendar-wrap { padding: 0 20px 20px; }
+  .week-grid { display: none; flex-direction: column; gap: 10px; }
+  .week-grid.active { display: flex; }
+
+  .day-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .day-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+  }
+  .day-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 1px; min-width: 50px;
+  }
+  .day-pillar-tag {
+    font-size: 9px; font-family: 'Space Mono', monospace;
+    font-weight: 700; padding: 3px 8px; border-radius: 4px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .day-format {
+    margin-left: auto; font-size: 9px;
+    font-family: 'Space Mono', monospace; color: var(--muted);
+    background: var(--bg3); padding: 3px 8px;
+    border-radius: 4px; border: 1px solid var(--border);
+  }
+  .day-body { padding: 14px 16px; }
+  .hook-line { font-weight: 900; font-size: 14px; color: var(--text); line-height: 1.4; margin-bottom: 10px; }
+  .content-note {
+    font-size: 12px; color: #aaa; line-height: 1.6; margin-bottom: 10px;
+    padding: 10px; background: var(--bg3); border-radius: 6px; border-left: 2px solid;
+  }
+  .cta-line {
+    font-size: 11px; font-family: 'Space Mono', monospace;
+    color: var(--accent); display: flex; align-items: center; gap: 6px;
+  }
+  .cta-line::before { content: '→'; }
+
+  /* MEME GRID */
+  .meme-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 0 20px 20px;
+  }
+  .meme-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+  }
+  .meme-title { font-weight: 900; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .meme-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .meme-example { margin-top: 8px; font-size: 11px; font-family: 'Space Mono', monospace; color: var(--accent); font-style: italic; }
+
+  /* STORY TIMELINE */
+  .story-timeline {
+    padding: 0 20px 20px;
+    display: flex; flex-direction: column; gap: 0;
+    position: relative;
+  }
+  .story-timeline::before {
+    content: ''; position: absolute;
+    left: 36px; top: 0; bottom: 0;
+    width: 1px; background: var(--border);
+  }
+  .story-item { display: flex; gap: 16px; padding: 12px 0; position: relative; }
+  .story-time {
+    font-family: 'Space Mono', monospace; font-size: 9px;
+    color: var(--accent); min-width: 52px; padding-top: 3px;
+    text-align: right; flex-shrink: 0;
+  }
+  .story-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); margin-top: 4px;
+    flex-shrink: 0; position: relative; z-index: 1;
+  }
+  .story-content .s-title { font-weight: 700; font-size: 12px; margin-bottom: 3px; }
+  .story-content .s-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* CAPTION FORMULA */
+  .formula-wrap { padding: 0 20px 20px; }
+  .formula-card {
+    background: var(--card); border: 1px solid var(--accent);
+    border-radius: 12px; padding: 18px;
+  }
+  .formula-step {
+    display: flex; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border); align-items: flex-start;
+  }
+  .formula-step:last-child { border-bottom: none; }
+  .f-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); min-width: 30px; line-height: 1; }
+  .f-label { font-weight: 700; font-size: 12px; margin-bottom: 3px; }
+  .f-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* POSTING TIMES */
+  .times-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; padding: 0 20px 20px;
+  }
+  .time-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 10px; text-align: center;
+  }
+  .time-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); margin-bottom: 2px; }
+  .time-label { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+  /* GROWTH NOTE */
+  .growth-note {
+    margin: 0 20px 32px;
+    background: linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02));
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 12px; padding: 18px;
+  }
+  .growth-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); letter-spacing: 1px; margin-bottom: 10px; }
+  .growth-point {
+    font-size: 12px; color: #ccc; padding: 5px 0;
+    display: flex; gap: 8px; line-height: 1.5;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .growth-point:last-child { border-bottom: none; }
+
+  /* COLOR TOKENS */
+  .tag-boards { background: rgba(255,140,66,0.15); color: #ff8c42; }
+  .tag-fix    { background: rgba(62,207,142,0.15); color: #3ecf8e; }
+  .tag-myth   { background: rgba(79,158,255,0.15); color: #4f9eff; }
+  .tag-after  { background: rgba(181,123,238,0.15); color: #b57bee; }
+  .tag-meme   { background: rgba(255,210,63,0.15);  color: #ffd23f; }
+
+  .bl-boards { border-left-color: #ff8c42; }
+  .bl-fix    { border-left-color: #3ecf8e; }
+  .bl-myth   { border-left-color: #4f9eff; }
+  .bl-after  { border-left-color: #b57bee; }
+  .bl-meme   { border-left-color: #ffd23f; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .week-grid.active .day-card { animation: fadeIn 0.3s ease both; }
+  .week-grid.active .day-card:nth-child(1) { animation-delay: 0.02s; }
+  .week-grid.active .day-card:nth-child(2) { animation-delay: 0.05s; }
+  .week-grid.active .day-card:nth-child(3) { animation-delay: 0.08s; }
+  .week-grid.active .day-card:nth-child(4) { animation-delay: 0.11s; }
+  .week-grid.active .day-card:nth-child(5) { animation-delay: 0.14s; }
+  .week-grid.active .day-card:nth-child(6) { animation-delay: 0.17s; }
+  .week-grid.active .day-card:nth-child(7) { animation-delay: 0.20s; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="badge">CONTENT OS</div>
+    <div class="badge v2">v2 — 5 PILLARS</div>
+  </div>
+  <h1>LOOSERS <span>STUDY</span></h1>
+  <div class="header-sub">@loosers_study · 4-WEEK INSTAGRAM CONTENT CALENDAR · 2026</div>
+</div>
+
+<!-- ACCOUNT AUDIT -->
+<div class="section">
+  <div class="section-label">Account Reality Check</div>
+</div>
+<div class="analysis-grid">
+  <div class="analysis-card">
+    <div class="a-title">TOP POST</div>
+    <div class="a-val">375</div>
+    <div class="a-desc">Intro reel — Prasun's face. Face-cam always beats everything else on this account.</div>
+  </div>
+  <div class="analysis-card">
+    <div class="a-title">ACTIVE PILLARS</div>
+    <div class="a-val" style="color:#3ecf8e">5</div>
+    <div class="a-desc">Boards Intel · Study Hacks · Chapter Glance · Memes · After 12th. Focused. Powerful.</div>
+  </div>
+  <div class="analysis-card full">
+    <div class="a-title">STRATEGIC CLARITY</div>
+    <ul class="insight-list">
+      <li><span class="icon">🎯</span>With 5 focused pillars every post has a clear job: Inform (Boards Intel), Engage (Memes), Teach (Chapter Glance), Solve (Study Hacks), or Inspire (After 12th). Zero confusion for new visitors.</li>
+      <li><span class="icon">📋</span>Boards Intel is now your anchor pillar — CBSE/ICSE students have ZERO dedicated accounts serving them on Instagram. You own this niche from Day 1.</li>
+      <li><span class="icon">😂</span>Memes are your organic reach engine. Educational content gets saved. Memes get shared. 2x per week = consistent new audience inflow without paid promotion.</li>
+      <li><span class="icon">📖</span>Chapter Glance series (every Friday) is your subscription hook — students follow to not miss the next chapter. Treat it like a TV show with episodes.</li>
+      <li><span class="icon">🚀</span>After 12th career content is underserved AND high-save. Students screenshot these and show parents. Carousel format = highest save rate on Instagram.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- PILLARS -->
+<div class="section">
+  <div class="section-label">Your 5 Active Content Pillars</div>
+</div>
+<div class="pillars-wrap">
+  <div class="pillar-row" style="border-left-color:#ff8c42">
+    <div class="pillar-icon">📋</div>
+    <div>
+      <div class="pillar-name">BOARDS INTEL</div>
+      <div class="pillar-desc">CBSE/ICSE syllabus updates, deleted topics, chapter weightage, exam strategy. Most underserved niche on Instagram. Your anchor pillar.</div>
+    </div>
+    <div class="pillar-freq">Carousel/Reel<br>2x/week</div>
+  </div>
+  <div class="pillar-row" style="border-left-color:#3ecf8e">
+    <div class="pillar-icon">🛠️</div>
+    <div>
+      <div class="pillar-name">STUDY HACKS</div>
+      <div class="pillar-desc">Study systems, revision tricks, habit methods, emergency exam plans. '3 days before boards' type content. Tactical, not motivational.</div>
+    </div>
+    <div class="pillar-freq">Face-cam / Carousel<br>2x/week</div>
+  </div>
+  <div class="pillar-row" style="border-left-color:#4f9eff">
+    <div class="pillar-icon">📖</div>
+    <div>
+      <div class="pillar-name">CHAPTER GLANCE</div>
+      <div class="pillar-desc">All subjects, class 8–12. 60s chapter overview — most asked board questions, key diagrams, marks-per-topic. A series students subscribe to.</div>
+    </div>
+    <div class="pillar-freq">Face-cam Reel<br>Every Friday</div>
+  </div>
+  <div class="pillar-row" style="border-left-color:#ffd23f">
+    <div class="pillar-icon">😂</div>
+    <div>
+      <div class="pillar-name">STUDENT MEMES</div>
+      <div class="pillar-desc">Study, exam, teacher, school memes. Hinglish captions. Must trigger a share reflex in under 1 second. Your free-reach engine.</div>
+    </div>
+    <div class="pillar-freq">Reel / Image<br>2x/week</div>
+  </div>
+  <div class="pillar-row" style="border-left-color:#b57bee">
+    <div class="pillar-icon">🚀</div>
+    <div>
+      <div class="pillar-name">AFTER 12TH / CAREER</div>
+      <div class="pillar-desc">Anti-pressure career exploration. All streams. Not just engineering. Real salary data. Students screenshot these to show parents. Highest save rate.</div>
+    </div>
+    <div class="pillar-freq">Carousel<br>1x/week</div>
+  </div>
+</div>
+
+<!-- WEEK TABS -->
+<div class="section">
+  <div class="section-label">4-Week Content Calendar</div>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="showWeek(1)">Week 1</div>
+  <div class="tab" onclick="showWeek(2)">Week 2</div>
+  <div class="tab" onclick="showWeek(3)">Week 3</div>
+  <div class="tab" onclick="showWeek(4)">Week 4</div>
+</div>
+<div class="calendar-wrap">
+
+  <!-- ═══════════════ WEEK 1 ═══════════════ -->
+  <div class="week-grid active" id="week-1">
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">MON</div>
+        <div class="day-pillar-tag tag-boards">📋 Boards Intel</div>
+        <div class="day-format">Carousel · 6 slides</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">CBSE 2025–26 mein ye 4 topics delete ho gaye — aur teri school ne bataya hi nahi.</div>
+        <div class="content-note bl-boards">Slide 1: Hook. Slides 2–5: One deleted/reduced topic per slide — Class 10 + 12 (Physics, Maths, Chemistry, Biology). Each slide: Chapter name → What was removed → What this means for your exam prep. Slide 6: 'Ye chapters pe time mat waste karo. Ye karo instead.' Sharp, save-worthy, spreads in WhatsApp groups.</div>
+        <div class="cta-line">Save karo. Apne classmates ko share karo — unka bhi faayda hoga.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">TUE</div>
+        <div class="day-pillar-tag tag-fix">🛠️ Study Hack</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Board exam mein 80+ laane ka ek kaam jo koi nahi karta — last 7 days mein.</div>
+        <div class="content-note bl-fix">The Last 7 Days Revision System: Day 7 = chapter mapping (what's done vs pending), Day 6–4 = PYQ solving only (no new reading), Day 3–2 = formula sheet + personal error log, Day 1 = sleep at 10pm. Prasun delivers face-on-camera, fast, urgent tone. NOT preachy — pure tactics. This is the reel students share the week before boards.</div>
+        <div class="cta-line">Save karo. Kal se try karo. Results DM karna mujhe.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">WED</div>
+        <div class="day-pillar-tag tag-meme">😂 Meme</div>
+        <div class="day-format">Reel · 15–20s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Teacher: "Ye toh bohot easy hai" — Student ka brain: [error 404]</div>
+        <div class="content-note bl-meme">Fast-cut meme reel. Teacher calls something "easy" → student's face: complete shutdown → relatable chaos. Use trending shocked audio. Text-on-screen works too — no face needed. Caption: 'Ek ❤ de agar ye hua hai tere saath bhi.' Must trigger WhatsApp forward within 1 second of watching.</div>
+        <div class="cta-line">❤ de + apne group mein share karo abhi.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">THU</div>
+        <div class="day-pillar-tag tag-boards">📋 Boards Intel</div>
+        <div class="day-format">Face-cam Reel · 55s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">CBSE vs ICSE — konsa board actually zyada marks deta hai? Sach batata hoon aaj.</div>
+        <div class="content-note bl-boards">Prasun breaks down grading patterns, passing percentages, marking leniency — with data. No bias, pure observation. This reel gets saves AND shares because every student has a cousin in the other board. Ends: 'Dono mein topper banna possible hai — system samjho, system ko mat koso.'</div>
+        <div class="cta-line">Konse board mein ho? Comment karo — specific tip duunga.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">FRI</div>
+        <div class="day-pillar-tag tag-myth">📖 Chapter Glance #1</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Class 10 Science — Light (Reflection & Refraction): 60 seconds mein pura chapter, boards ke liye.</div>
+        <div class="content-note bl-myth">SERIES LAUNCH. NOT a textbook reel — Prasun on face-cam, explains the SOUL of the chapter. What's most asked in boards (mirror formula, lens formula). The 1 diagram that always comes. The 1 trick to remember sign convention. End with: 'Konsa chapter next chahiye? Comment karo.' Pinned series. Every Friday = new episode.</div>
+        <div class="cta-line">Konsa chapter next chahiye? Comment mein batao — wahi karuunga.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">SAT</div>
+        <div class="day-pillar-tag tag-after">🚀 After 12th</div>
+        <div class="day-format">Carousel · 7 slides</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Science ke baad sirf engineering nahi — ye 6 paths koi nahi batata. Real salaries included.</div>
+        <div class="content-note bl-after">Slide 1: Hook. Slides 2–7: Research Scientist, Data Analyst, Defence R&D (DRDO), Forensic Science, Science Journalism, Teaching-preneur. Each slide format: Role → Real average salary → How to get there from Class 12 → 1-line reality check. No fluff. Students screenshot this to show parents. High-save carousel.</div>
+        <div class="cta-line">Konsa path interesting laga? Neeche batao — deep dive karuunga.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">SUN</div>
+        <div class="day-pillar-tag tag-meme">😂 Story Series</div>
+        <div class="day-format">3-Part Stories</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Poll: Tera sabse bada board exam wali problem kya hai?</div>
+        <div class="content-note bl-meme">Story 1: Poll — Paper tough hoga / Syllabus adhura hai / Ghar ka pressure / Time management. Story 2: Results + 'Sabse zyada logo ne ye choose kiya — kal iska solution deta hoon.' Story 3: Tease Monday's Boards Intel carousel. Build the habit of checking on Monday morning.</div>
+        <div class="cta-line">Reply karo — personally padhuunga har ek message.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ WEEK 2 ═══════════════ -->
+  <div class="week-grid" id="week-2">
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">MON</div>
+        <div class="day-pillar-tag tag-boards">📋 Boards Intel</div>
+        <div class="day-format">Carousel · 5 slides</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Class 10 Maths ke 5 chapters jo har saal 40+ marks laate hain — aur tu ignore kar raha hai.</div>
+        <div class="content-note bl-boards">Chapter-wise marks weightage for Class 10 Maths. Per slide: Chapter name → Expected marks in board → Difficulty level (Easy/Medium/Hard) → Days needed to master → Skip karo ya padho? verdict. Designed for someone with 30–45 days left. Surgical, tactical, zero fluff. Will spread in tuition group chats.</div>
+        <div class="cta-line">Save karo. Class 12 walo ke liye same format agle hafte aata hai.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">TUE</div>
+        <div class="day-pillar-tag tag-fix">🛠️ Study Hack</div>
+        <div class="day-format">Carousel · 5 slides</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Raat ko 2 baje padhna — romantic lagta hai. Marks nahi deta. Ye system try karo.</div>
+        <div class="content-note bl-fix">Sleep science for students — brief, not boring. Why night study kills next-day retention. The 6AM advantage. Prasun's own output data: 6AM vs 2AM session results. Slide 4: Exact 7-day sleep schedule correction. Slide 5: 'Kal se nahi — aaj raat se start karo.' Aspirational but immediately actionable.</div>
+        <div class="cta-line">Morning mein padh ke batao — 7 din baad result share karo comment mein.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">WED</div>
+        <div class="day-pillar-tag tag-meme">😂 Meme</div>
+        <div class="day-format">Reel · 15–20s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Woh teacher jo puchta hai "koi doubt hai?" — aur 0.3 second mein aage badh jaata hai.</div>
+        <div class="content-note bl-meme">Universal teacher archetype meme. Cut between 'Teacher: Koi sawaal?' → immediate flip to 'Teacher: Chalo next topic.' Every student in India has met this teacher. Use a deadpan trending audio. Caption: 'Agar aapka bhi aisa teacher hai — silent ❤ do.' Tag-a-friend energy. This spreads itself.</div>
+        <div class="cta-line">Tag karo us teacher ko 😂 (ya mat karo — safe raho yaar).</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">THU</div>
+        <div class="day-pillar-tag tag-fix">🛠️ Study Hack</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Ek chapter 3 baar padho — understanding guarantee nahi milegi. Ye 3-Pass method try karo.</div>
+        <div class="content-note bl-fix">The 3-Pass Method live demo: Pass 1 = Read only (don't solve, just absorb), Pass 2 = Close book, write everything you remember, Pass 3 = Teach it to a wall / younger sibling / anyone. Prasun demonstrates live with Class 10 Chemical Reactions chapter. Specific, unusual, memorable. Students will try this same day.</div>
+        <div class="cta-line">Kal ye try karo. Ek chapter. Phir comment mein result batao.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">FRI</div>
+        <div class="day-pillar-tag tag-myth">📖 Chapter Glance #2</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Class 12 Chemistry — Electrochemistry: Boards mein har saal 5 marks — 60s mein crack karo.</div>
+        <div class="content-note bl-myth">Chapter Glance episode 2. Electrochemistry — the classic marks-killer. Top 3 questions that always come (Kohlrausch law, Nernst equation application, EMF calculation). 1 formula sheet shortcut. The one diagram (electrolytic vs galvanic cell) difference trick. Students requesting chapters in comments = series is working. Announce next week's chapter at the end.</div>
+        <div class="cta-line">Is chapter mein kahan atke ho? Ye ek cheez comment karo.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">SAT</div>
+        <div class="day-pillar-tag tag-after">🚀 After 12th</div>
+        <div class="day-format">Face-cam Reel · 55s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Arts liya toh career khatam? Ye sochna band karo. Ye 5 paths IITians bhi baad mein dhundhte hain.</div>
+        <div class="content-note bl-after">Face-cam delivery — more emotional than a carousel. Law, UX Design, Civil Services, Psychology, Foreign Services. Each with 1 real salary figure and 1 sentence on how to get there. 'Stream nahi, curiosity matters.' Ends with: 'Comment mein apna stream likho. Tera specific path batata hoon.' Invitation-driven engagement.</div>
+        <div class="cta-line">Apna stream comment mein likho — personally options duunga.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">SUN</div>
+        <div class="day-pillar-tag tag-fix">Story Series</div>
+        <div class="day-format">3-Part Stories</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Poll: Padhai ke time sabse bada distraction kya hai?</div>
+        <div class="content-note bl-fix">Story 1: Poll — Phone / Noise at home / Friend circles / Social media. Story 2: Results + 'Sabse common jawab: Phone. Kal iska 1 solution batata hoon jo actually kaam karta hai.' Story 3: Tease Tuesday's Study Hack carousel. Build Monday-Tuesday content habit loop.</div>
+        <div class="cta-line">DM karo apna scenario — tera specific solution duunga.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ WEEK 3 ═══════════════ -->
+  <div class="week-grid" id="week-3">
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">MON</div>
+        <div class="day-pillar-tag tag-boards">📋 Boards Intel</div>
+        <div class="day-format">Carousel · 6 slides</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Class 12 boards ke 5 chapters jo Physics + Chem + Maths mein 50+ marks decide karte hain.</div>
+        <div class="content-note bl-boards">Class 12 version of Week 2's Class 10 weightage carousel. Same format, higher stakes. Chapter + subject + marks + 'can you afford to skip?' verdict. Wave 2 and Wave 3 Optics, Electrochemistry, Probability, Thermodynamics, etc. This is the post that spreads in Class 12 tuition WhatsApp groups without any push from you.</div>
+        <div class="cta-line">Class 10 version tha Week 2 mein — ye bhi save karo, dono compare karo.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">TUE</div>
+        <div class="day-pillar-tag tag-fix">🛠️ Study Hack</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">2 ghante bhi nahi de pa rahe physics ko? Ye 20-minute daily system try karo — seriously kaam karta hai.</div>
+        <div class="content-note bl-fix">The Micro-Habit System for ultra-busy students. 20 minutes = enough if done right. Breakdown: Which 20 minutes (4:30–4:50 PM after school), What to do in them (PYQs only, no theory), How to track it. Physics Gym streak feature natural mention here. Designed for students who feel 'I don't have time' — removes the excuse.</div>
+        <div class="cta-line">Aaj 4:30 pe try karo. Kal batana kya hua.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">WED</div>
+        <div class="day-pillar-tag tag-meme">😂 Meme</div>
+        <div class="day-format">Reel · 15–20s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Exam mein ek question tha jo tune bilkul nahi padha tha — aur 10 marks ka tha.</div>
+        <div class="content-note bl-meme">The exam paper shock meme. Student opens paper → sees unexpected question → brain goes blank → slow-motion devastation. Text-on-screen format with a dramatic trending audio drop. Universal. Hits every class 8–12 student. Caption: 'Konsa chapter tha? Comment mein confess karo 😭' — confession thread in comments = massive engagement.</div>
+        <div class="cta-line">Konsa chapter tha woh? Comment karo — tu akela nahi hai 😭</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">THU</div>
+        <div class="day-pillar-tag tag-boards">📋 Boards Intel</div>
+        <div class="day-format">Face-cam Reel · 55s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">CBSE board exam date sheet 2026 — ye dates pe dhyan do. Ye gap use karo is tarah.</div>
+        <div class="content-note bl-boards">Date sheet strategy reel. Prasun face-cam, breaking down the CBSE 2026 exam schedule. Which subjects have long gaps (use for revision) and which are back-to-back (need to be prepared in advance). Strategic, tactical, time-sensitive. Students watch this then immediately check their own date sheet.</div>
+        <div class="cta-line">Teri date sheet mein konsa gap hai? Comment mein likho — strategy duunga.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">FRI</div>
+        <div class="day-pillar-tag tag-myth">📖 Chapter Glance #3</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Class 11 History — Early Societies: Arts walo ke liye, boards mein ye poochha hi poochha jaata hai.</div>
+        <div class="content-note bl-myth">Chapter Glance series goes beyond Science. History — intentionally expanding to Arts stream audience. Key dates, most-asked board questions (source-based vs long answer), 1 memory trick for timeline. 'History boring nahi hai — tujhe galat teacher mila.' This episode doubles the account's potential audience in one post.</div>
+        <div class="cta-line">Arts wale — tum bhi yahan belong karte ho. Konsa chapter next? ❤</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">SAT</div>
+        <div class="day-pillar-tag tag-after">🚀 After 12th</div>
+        <div class="day-format">Carousel · 6 slides</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">IIT nahi mili — toh kya hua? Ye 5 options hain jo IITians bhi baad mein dhundhte hain.</div>
+        <div class="content-note bl-after">NIT + PSU route, GATE + IIT-M (the backdoor), DRDO research, International MS, Teaching-preneur. Real salary data per path. Prasun's own teaching journey briefly mentioned as living proof. This is anti-despair content — turns 'I didn't crack JEE' into 'I have options.' Students send this to their parents after boards results.</div>
+        <div class="cta-line">Konsa option tumhara wala lag raha hai? Comment mein batao.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">SUN</div>
+        <div class="day-pillar-tag tag-boards">Story Series</div>
+        <div class="day-format">3-Part Stories</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Poll: Boards mein konsa subject sabse zyada darr deta hai?</div>
+        <div class="content-note bl-boards">Story 1: Poll — Maths / Physics / Chemistry / English / Accounts / Other. Story 2: Results + 'Sabse zyada voted subject ka 1 cheat-code batata hoon.' Story 3: Tease Monday's Chapter Weightage carousel for that exact subject. The Sunday poll decides Monday's content — students feel ownership.</div>
+        <div class="cta-line">Reply karo. Teri specific problem — kal ka solution.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ WEEK 4 ═══════════════ -->
+  <div class="week-grid" id="week-4">
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">MON</div>
+        <div class="day-pillar-tag tag-fix">🛠️ Study Hack</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Agar exam kal hai aur revision adhuri hai — ye exact 12-hour plan follow karo. Emergency mode.</div>
+        <div class="content-note bl-fix">Emergency revision plan for the night before. Not panic-inducing — cold and tactical. Hour-by-hour: What to cover first (high-weightage chapters), what to skip (derivations if short on time), when to eat, when to sleep (10:30pm hard stop). This is the reel every student shares in their group at 10pm before an exam. Pure viral utility.</div>
+        <div class="cta-line">Save karo. Exam se pehle raat ko kaam aayega — seriously.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">TUE</div>
+        <div class="day-pillar-tag tag-boards">📋 Boards Intel</div>
+        <div class="day-format">Carousel · 5 slides</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">NCERT se kitne marks aate hain boards mein? Subject-wise data — tune galat estimate lagaya tha.</div>
+        <div class="content-note bl-boards">NCERT-vs-Outside-source marks breakdown per subject. Class 10 + 12. How much is strictly NCERT (Physics: ~85%, History: ~95%, etc.). This reshapes how students allocate study time. Immediate save value. Slide 5: 'Iska matlab — ye karo in last 4 weeks.' Action-oriented ending.</div>
+        <div class="cta-line">Ye data change kiya tera study plan? Comment mein batao.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">WED</div>
+        <div class="day-pillar-tag tag-meme">😂 Meme</div>
+        <div class="day-format">Reel · 15s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">School ne syllabus complete nahi karaya — board ko koi fark nahi pada.</div>
+        <div class="content-note bl-meme">The universal school vs board betrayal meme. School: 'Hum ye chapter nahi karenge time nahi hai.' Board paper: *ye hi chapter 10 marks ka*. Fast-cut with a trending 'betrayal' audio. Pure rage-relatable. Spreads instantly in Class 10 + 12 student groups organically without any push from your side.</div>
+        <div class="cta-line">Ek ❤ de agar tera school bhi aisa hi tha.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">THU</div>
+        <div class="day-pillar-tag tag-myth">📖 Chapter Glance #4</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Class 12 Physics — Capacitors: Board mein 3 questions, ye ek concept se aate hain — sikhlo.</div>
+        <div class="content-note bl-myth">Chapter Glance episode 4 (moved to Thu to vary the schedule). Capacitors — the classic board marks-killer. The one concept (energy stored after dielectric insertion) that always appears. Wrong approach first, then the forensic breakdown of the correct method. Pin the comment: 'Next chapter konsa chahiye? Yahan batao.' High-save reel.</div>
+        <div class="cta-line">Next chapter konsa chahiye? Comment karo — next Friday wahi hoga.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">FRI</div>
+        <div class="day-pillar-tag tag-fix">🛠️ Study Hack</div>
+        <div class="day-format">Face-cam Reel · 55s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Hindi mein physics padhna — kamzori nahi, samajhdaari hai. Aaj prove karta hoon.</div>
+        <div class="content-note bl-fix">Prasun explains the SAME concept (Projectile Motion) first in English textbook style — then in pure Hindi. Understanding visibly explodes. The neuroscience of mother-tongue learning in 20 seconds. 'English nahi aata toh physics nahi samajh paoge — ye jhooth hai.' Normalises vernacular learning. Opens the account to Tier-2/3 students who felt excluded.</div>
+        <div class="cta-line">Apni bhasha mein padhne ka experience comment mein batao.</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">SAT</div>
+        <div class="day-pillar-tag tag-after">🚀 After 12th</div>
+        <div class="day-format">Face-cam Reel · 60s</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Commerce liya — toh kya? Ye 6 careers hain jo science wale baad mein dhundhte hain. Seriously.</div>
+        <div class="content-note bl-after">Commerce stream anti-stigma reel. Actuarial Science, Chartered Accountancy, Investment Banking, Health Economics, Startup Finance, Economic Policy. Each with real earning ceiling. Face-cam delivery for emotional punch. 'Stream nahi, curiosity matters — ye 4 words yaad rakhna.' Expands account reach to Commerce students = new audience segment.</div>
+        <div class="cta-line">Commerce wale students — tum bhi yahan belong karte ho. ❤</div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-header">
+        <div class="day-name">SUN</div>
+        <div class="day-pillar-tag tag-boards">Story Series — Month 1 Wrap</div>
+        <div class="day-format">3-Part Stories</div>
+      </div>
+      <div class="day-body">
+        <div class="hook-line">Poll: Month 2 mein konsa content chahiye sabse zyada?</div>
+        <div class="content-note bl-boards">Story 1: Poll — More Chapter Glances / More Boards Intel / More Study Hacks / More Career Content. Story 2: Prasun genuinely thanks the community — shares 1 real DM that made it worth it (anonymised). Story 3: Month 2 teaser. 'Ye series aa rahi hai next month.' Build anticipation. Let community feel ownership of the account's direction.</div>
+        <div class="cta-line">Tum decide karte ho kya banta hai. Ye tumhara account hai.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MEME PLAYBOOK -->
+<div class="section">
+  <div class="section-label">Meme Playbook — 5 Formats That Always Work</div>
+</div>
+<div class="meme-grid">
+  <div class="meme-card">
+    <div class="meme-title">😤 Rage Relatable</div>
+    <div class="meme-desc">System failures, school problems, unfair paper patterns. Pure anger — people share because it validates their frustration.</div>
+    <div class="meme-example">"School ne syllabus nahi karaya, board ne pooch liya."</div>
+  </div>
+  <div class="meme-card">
+    <div class="meme-title">😭 Universal Pain</div>
+    <div class="meme-desc">Every student has lived this exact moment. No context needed. Works across all classes 8–12.</div>
+    <div class="meme-example">"Kal exam hai aur main Netflix dekh raha hoon."</div>
+  </div>
+  <div class="meme-card">
+    <div class="meme-title">🤡 Self-Aware Humor</div>
+    <div class="meme-desc">Students laughing at their own habits. Loveable, tag-a-friend energy. Safe, funny, zero controversy.</div>
+    <div class="meme-example">"Main: Kal se padhna. Main, 3 months later: Kal se padhna."</div>
+  </div>
+  <div class="meme-card">
+    <div class="meme-title">👨‍🏫 Teacher Memes</div>
+    <div class="meme-desc">Universal teacher archetypes every student recognizes. Instant tag-your-teacher energy without any targeting.</div>
+    <div class="meme-example">"Koi doubt? *moves on in 0.3 seconds*"</div>
+  </div>
+  <div class="meme-card" style="grid-column:1/-1">
+    <div class="meme-title">📱 Hinglish Text-on-Screen</div>
+    <div class="meme-desc">No face needed. Trending audio + bold Hinglish text cards. Fastest to produce, highest share rate. Use when content volume is high or you need a quick post.</div>
+    <div class="meme-example">"Padhai: 0% / Phone: 100% / Exam: kal / Anxiety: loading... 99%"</div>
+  </div>
+</div>
+
+<!-- DAILY STORY FRAMEWORK -->
+<div class="section">
+  <div class="section-label">Daily Story Framework (Every Single Day)</div>
+</div>
+<div class="story-timeline">
+  <div class="story-item">
+    <div class="story-time">7–8 AM</div>
+    <div class="story-dot"></div>
+    <div class="story-content">
+      <div class="s-title">Morning Drop</div>
+      <div class="s-desc">1 anonymous student question. Prasun answers in 15 seconds. Builds parasocial trust before school starts every day.</div>
+    </div>
+  </div>
+  <div class="story-item">
+    <div class="story-time">12 PM</div>
+    <div class="story-dot" style="background:#ff8c42"></div>
+    <div class="story-content">
+      <div class="s-title">Boards Tip of the Day</div>
+      <div class="s-desc">Text card: 1 board exam fact, deleted topic alert, or exam date reminder. High-save daily utility content.</div>
+    </div>
+  </div>
+  <div class="story-item">
+    <div class="story-time">4–5 PM</div>
+    <div class="story-dot" style="background:#3ecf8e"></div>
+    <div class="story-content">
+      <div class="s-title">Poll / Engage</div>
+      <div class="s-desc">"Agree ya disagree?" or emoji reaction sliders. Feeds the algorithm and reveals exactly what students are thinking.</div>
+    </div>
+  </div>
+  <div class="story-item">
+    <div class="story-time">8–9 PM</div>
+    <div class="story-dot" style="background:#4f9eff"></div>
+    <div class="story-content">
+      <div class="s-title">Reel Reminder</div>
+      <div class="s-desc">Link to today's reel. Just: 'Aaj ka reel dekha? Save karna mat bhoolna.' Drives late-evening views when students are studying.</div>
+    </div>
+  </div>
+  <div class="story-item">
+    <div class="story-time">10–11 PM</div>
+    <div class="story-dot" style="background:#ffd23f"></div>
+    <div class="story-content">
+      <div class="s-title">Night Check-in</div>
+      <div class="s-desc">'Aaj padhai kaisi gayi? 1-10?' — DM open. This single story builds the most loyal followers. Reply to everyone. Always.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CAPTION FORMULA -->
+<div class="section">
+  <div class="section-label">Caption Formula (Every Single Post)</div>
+</div>
+<div class="formula-wrap">
+  <div class="formula-card">
+    <div class="formula-step">
+      <div class="f-num">1</div>
+      <div>
+        <div class="f-label">HOOK LINE</div>
+        <div class="f-desc">Same as your reel's opening line. 1 sentence maximum. Pulls people to hit play.</div>
+      </div>
+    </div>
+    <div class="formula-step">
+      <div class="f-num">2</div>
+      <div>
+        <div class="f-label">THE REALNESS (2–3 lines)</div>
+        <div class="f-desc">Expand the insight or the context. Must feel like a DM — not a lecture. No bullet points.</div>
+      </div>
+    </div>
+    <div class="formula-step">
+      <div class="f-num">3</div>
+      <div>
+        <div class="f-label">THE INVITE (1 line only)</div>
+        <div class="f-desc">One action: save prompt OR comment prompt. Never both. 'Apna experience neeche batao.'</div>
+      </div>
+    </div>
+    <div class="formula-step">
+      <div class="f-num">4</div>
+      <div>
+        <div class="f-label">HASHTAGS (5–8 max)</div>
+        <div class="f-desc">#cbse2026 #boardexam #studymotivation #loosers_study #class10 #class12 #studytips #indianstudents — Pick 5 relevant ones per post. Never more than 8.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POSTING TIMES -->
+<div class="section">
+  <div class="section-label">Optimal Posting Times — Indian Student Audience</div>
+</div>
+<div class="times-grid">
+  <div class="time-card">
+    <div class="time-val">7 AM</div>
+    <div class="time-label">Before school. High attention window. Post Boards Intel here.</div>
+  </div>
+  <div class="time-card">
+    <div class="time-val">4 PM</div>
+    <div class="time-label">After school, peak scroll. Memes + Study Hacks perform best.</div>
+  </div>
+  <div class="time-card">
+    <div class="time-val">9 PM</div>
+    <div class="time-label">Study session peak. Chapter Glance + After 12th carousels go here.</div>
+  </div>
+</div>
+
+<!-- GROWTH FRAMEWORK -->
+<div class="growth-note">
+  <div class="growth-title">GROWTH FRAMEWORK — Month 1 Non-Negotiables</div>
+  <div class="growth-point"><span>🎯</span>CONSISTENCY beats virality every time. 5–6 posts/week for 4 straight weeks before expecting algorithmic push. The algorithm rewards history, not one-off spikes.</div>
+  <div class="growth-point"><span>📌</span>PIN the Chapter Glance series intro reel. New visitors need to understand it's a series. Pin = discovery shortcut.</div>
+  <div class="growth-point"><span>💬</span>Reply to every comment in the FIRST 60 MINUTES of posting. This is the single highest-ROI action on Instagram right now — it signals engagement to the algorithm and builds real loyalty.</div>
+  <div class="growth-point"><span>🔄</span>Chapter Glance is your series subscription hook. Treat it like a TV show. Announce next week's chapter at the end of every episode. Students follow to not miss the next one.</div>
+  <div class="growth-point"><span>😂</span>Every meme = free reach. Educational content gets saved. Memes get shared. 2x memes per week = constant new audience inflow without paid promotion.</div>
+  <div class="growth-point"><span>📋</span>Boards Intel carousels are your save-rate champions. Save rate signals algorithm more than likes. Post these Monday mornings when students are planning their week.</div>
+  <div class="growth-point"><span>🏋</span>Reference @physics_gym94 only when the chapter BELONGS there. 'Full concept breakdown Physics Gym pe hai.' Natural. Earned. Never forced.</div>
+  <div class="growth-point"><span>📊</span>Realistic Month 1 target: 100–150 followers. One viral meme or one boards-intel carousel that hits a WhatsApp group can 5x this overnight. Build the base first.</div>
+</div>
+
+<script>
+  function showWeek(n) {
+    document.querySelectorAll('.week-grid').forEach(g => g.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('week-' + n).classList.add('active');
+    document.querySelectorAll('.tab')[n - 1].classList.add('active');
+  }
+</script>
+</body>
+</html>
